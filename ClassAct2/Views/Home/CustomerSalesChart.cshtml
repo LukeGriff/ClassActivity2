@@ -1,0 +1,14 @@
+﻿@model Dictionary<string, double>
+@{
+    Layout = null;
+}
+
+@{
+    var myChart = new Chart(width: 800, height: 500)
+        .AddTitle("Sales Per Customer")
+        .AddSeries(
+            name: "SalesDates",
+            xValue: Model.Keys,
+            yValues: Model.Values)
+        .Write();
+}

@@ -1,0 +1,81 @@
+﻿@model  ClassAct2.ViewModels.VMs
+@using ClassAct2.ViewModels
+@using System.Globalization
+@using System.Data
+@{
+    ViewBag.Title = "Index";
+}
+
+<h1>MVC Reporting</h1>
+<h2>Sales By Employee During Specified Period <br />Grouped by Product</h2>
+
+<div class="criteria">
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        <label>Select Employee</label>
+        @Html.DropDownListFor(m => m.SelectedEmployeeID, Model.Employees, "-- Please select --", new { @class = "form-control" })
+        <label>From</label>
+        @Html.TextBoxFor(m => m.DateFrom, "yyyy-MM-dd", new { @Value = "2011-08-01", @type = "date", @class = "form-control" })
+        <label>To</label>
+        @Html.TextBoxFor(m => m.DateTo, "yyyy-MM-dd", new { @Value = "2011-08-30", @type = "date", @class = "form-control" })
+        <br />
+        <input type="submit" value="Generate" class="btn btn-primary" />
+    }
+</div>
+
+<hr />
+@if (Model.employee != null)
+{
+    <div class="panel panel-success">
+        <div class="panel-heading"><strong>Employee Details: </strong>@Model.employee.emp_fname + @Model.employee.emp_lname</div>
+        <div class="panel-body">
+            <label>Employee number: </label>@Model.employee.emp_num<br />
+            <label>Employee Title: </label>@Model.employee.emp_title<br />
+            <label>Employee Commision: </label>@(Model.employee.emp_comm)<br />
+
+
+        </div>
+
+
+    </div>
+
+    <div class="panel">
+        @if (Model.chartData != null)
+        {
+            <img src="@Url.Action("CustomerSalesChart", "Home")" />
+        }
+
+    </div>
+
+    <div class="panel panel-info">
+        @foreach (var group in Model.results)
+        {
+            <h4>@group.Key:</h4>
+            <table class="table table-striped">
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Order Date</th>
+                    <th>Amount</th>
+                </tr>
+                @foreach (ReportRecord groupItem in group)
+                {
+                    <tr>
+                        <td>@groupItem.CustomerName @groupItem.CustomerSurname</td>
+                        <td>@groupItem.OrderDate</td>
+                        <td>@groupItem.Amount.ToString("C", CultureInfo.CurrentCulture)</td>
+                    </tr>
+                }
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>@group.Sum(item => item.Amount).ToString("C", CultureInfo.CurrentCulture)</strong></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <hr />
+        }
+        <h3>Grand Total: <strong>@Model.results.Sum(group => group.Sum(item => item.Amount)).ToString("C", CultureInfo.CurrentCulture)</strong></h3>
+
+
+    </div>
+}
